@@ -1,168 +1,37 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>邮箱登录</title>
+    <title>注册界面</title>
     <style>
-        .z1{
-            width: 1000px;
-            height: 50px;
-            background-color: aliceblue;
-            float: left;
-        }
-        .q1{
-            width: 400px;
-            height: 50px;
-            float: left;
-        }
-        .q2{
-           width: 150px;
-           height: 50px;
-           float: left;
-            
-        }
-        .q2 p{
-            float: left;
-        }
-        .q3{
-            width:150px ;
-            height: 50px;
-            float: right;
-        }
-        .q3 a{
-    
-            text-decoration: none;
-        }
-        .q3 a:hover{
-            color: blanchedalmond;
-        }
-        .z2{
-            width: 1000px;
-            height: 800px;
-            background-color: aliceblue;
-        }
-        .s1{
-            width: 500px;
-            height:800px;
-            margin: auto;
-            
-        }
-        .e1{
-            width: 400px;
-            height: 50px;
-            margin-top: 100px;
-            float: left;
-        }
-        .e1 a{
-            width: 400px;
-            height: 50px;
-            margin-top: 50px;
-            text-decoration: none;
-            color: black;
-        }
-        .e2{
-            width: 500px;
-            height: 50px;
-            float: left;
-        }
-        .e3{
-            width: 500px;
-            height: 50px;
-            float: left;
-        }
-        .e4{
-            width: 500px;
-            height: 50px;
-            float: left;
-        }
-     .e5{
-            width: 500px;
-            height: 50px;
-            float: left;
-        }
-        .e6{
-            width: 500px;
-            height:100px;
-            float: left;
-        }
-        .e7{
-            width: 800px;
-            height:100px;
-            float: left;
-        }
-        .z3{
-            width: 800px;
-            height:100px;
-            float: left;
-        }
+        * {margin: 0;padding: 0;box-sizing: border-box;font-family: Arial, sans-serif;}
+        body {background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);min-height: 100vh;display: flex;align-items: center;justify-content: center;}
+        .box {background: rgba(255,255,255,0.9);padding: 2.5rem;border-radius: 12px;box-shadow: 0 8px 32px rgba(31,38,135,0.2);width: 100%;max-width: 400px;}
+        .register-form {display: flex;flex-direction: column;align-items: center;gap: 1.5rem;}
+        .input-box form {display: flex;flex-direction: column;gap: 1rem;width: 100%;}
+        .input-box span {display: flex;align-items: center;gap: 0.8rem;border-bottom: 1px solid #eee;padding-bottom: 0.5rem;}
+        .input-box strong {color: #4a5568;width: 80px;text-align: right;}
+        .input-box input {flex: 1;border: none;outline: none;padding: 0.5rem 0;font-size: 1rem;background: transparent;}
+        .input-box button {padding: 0.8rem;border: none;border-radius: 8px;font-size: 1rem;background: #764ba2;color: white;cursor: pointer;transition: all 0.3s ease;}
+        .input-box button:hover {transform: translateY(-2px);box-shadow: 0 4px 8px rgba(0,0,0,0.1);}
+        .back-login {text-align: center;margin-top: 0.8rem;color: #764ba2;text-decoration: none;}
+        .back-login:hover {text-decoration: underline;}
     </style>
 </head>
 <body>
-    
-           
-            <div class="q1">
-                <p style="font-size:smaller; color: darkgray;">你的专属电子邮网</p >
-            </div>
-            <div class="q2">
-                <a href=" " target="_blank" style="color: orange;"> 靓号商城</a >|
-                <a href="#" target="_blank" style="color: darkgray;"> 帮助</a >|
-                <a href="#" target="_blank" style="color: darkgrey;">反馈</a >
- 
-            </div>
-            
-        </div>
-        <div class="z2"> 
-            <div class="s1">
-                <div class="e1">
-                    <a href="#">注册字母</a >&nbsp;&nbsp;
-                    <a href="#">注册手机号码邮箱</a >&nbsp;&nbsp;
-                    <a href="#">注册VIP邮箱</a >&nbsp;&nbsp;
-                </div>
-                <div class="e2">
-                   <label for="address" >邮件地址</label>
-                    <input type="text" placeholder="建议使用手机号注册" maxlength="18" minlength="6">@<input type="email" name="email" width="10px">
-                    <p style="font-size: x-small; color: rgb(103, 103, 103)" > 6~18个字符，可以使用字母、数字、下划线，需以字母开头</p >
-                </div>
-                <div class="e3">
-                    <label for="passwd">密码</label>
-                    <input type="password" minlength="6" maxlength="16" required>
-                    <p style="font-size: x-small; color: rgb(103, 103, 103)" >6~16个字符，区分大小写</p >
-                </div>
-                <div class="e4">
-                    <Label>确定密码</Label>
-                    <input type="password" minlength="6" maxlength="16">
-                </div>
-                <div class="e5">
-                    <label for="nubmer">手机号码</label>
-                    <input type="tel"  >
-                    <p style="font-size: x-small; color: rgb(103, 103, 103)" >忘记密码时，可以通过该手机号码快速找回密码</p >
-                </div>
-                <div class="e6">
-                    <label > 验证码</label>
-                    <input type="text">
-                    <a href="#" onclick="changeCaptcha(); return false;">换个验证码</a >
-                    <p style="font-size: x-small; color: rgb(103, 103, 103)">请填写图片中的字符，不区分大小写</p >
-                </div>
-                <div class="e7">
-                    <input type="radio">同意<a href="#" style="font-size: x-small; color: rgb(103, 103, 103)">服务条款</a >和
-                    <a href="#" style="font-size: x-small; color: rgb(103, 103, 103)">“隐私权限相关政策”</a >     
-                </div>
-                <div class="z3">
-                    <a href="#" style="font-size: x-small; color: rgb(103, 103, 103)">关于网易</a >|
-                    <a href="#" style="font-size: x-small; color: rgb(103, 103, 103)">客户服务</a >|
-                    <a href="#" style="font-size: x-small; color: rgb(103, 103, 103)">隐私政策</a >|
-                    <a href="#" style="font-size: x-small; color: rgb(103, 103, 103)">网易公司版权所有@1997-2024</a >
-                </div>
-        </div>
+    <div class="box">
+        <div class="register-form">
+            <div class="title-box"><h1>注册</h1></div>
+            <div class="input-box">
+                <form onsubmit="alert('注册成功！即将返回登录页');setTimeout(()=>window.location.href='login.html',1500);return false;">
+                    <span><strong>用户名:</strong><input type="text" placeholder="设置用户名" required></span>
+                    <span><strong>密&nbsp&nbsp 码:</strong><input type="password" placeholder="设置密码" required></span>
+                    <span><strong>确认密码:</strong><input type="password" placeholder="再次输入密码" required></span>
+                    <button type="submit">完成注册</button>
+                    <a href="./1.html " class="back-login">已有账号？返回登录</a >
+                </form>
             </div>
         </div>
-        
- 
- 
- 
     </div>
- 
- 
 </body>
-</html>
