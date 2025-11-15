@@ -11,6 +11,9 @@
             gap: 15px;
             margin-bottom: 10px;
             /* logo和“首页”之间的间距 */
+            justify-content: center;
+            width: 100%;
+            padding: 20px 0;
         }
         .auth-group{
             display: flex;
@@ -20,8 +23,8 @@
 
         /* logo样式（可根据需要调整大小） */
         .logo {
-            width: 50px;
-            height: 50px; 
+            width: 80px;
+            height: 80px; 
         }
         .small-text{
             font-size: 10px;
@@ -40,23 +43,35 @@
             gap: 8px;
         }
         .search-input{
-            padding: 14px 18px;
+            padding: 18px 22px;
             border: 1px solid #ddd;
             border-radius: 6px;
-            width: 300px;
+            width: 350px;
         }
         .search-btn{
-            padding:14px 22px;
-            background: #e3f2fd;
+            padding:18px 26px;
+            background: #ddd;
             border: none;
             border-radius: 6px;
             cursor: pointer;
-            font-size: 16px;
+            font-size: 18px;
         }
+        body{
+            background-image: url(./海贼王-艾斯.jpg);
+            background-size:cover ;
+            background-repeat: no-repeat;
+            background-position: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 0 20px;
+        }
+
+        
     </style>
 </head>
 
 <body>
+    <div class=""
     <!-- 头部容器：包含logo和首页 -->
     <div class="header">
         <!-- 替换成你的logo图片地址 -->
@@ -67,18 +82,26 @@
        
       <div class="search-container">
             <input  type="text"class="search-input"placeholder="搜索...">
-                    <a href="https://github.com/roy-jin">
+                    <a href="">
 
             <button class="search-btn">搜索</button>
             </a>
+                       
+        </div>
+        <div>
+            <a>
+                 <button class="search-btn">首页</button>
+                        <button class="search-btn"></button>
+           
+            </a>
         </div>
     
-        <h1 style="color:red;background:#fff3cd;font-size: 30px;margin: 0;margin-left: auto;"><a href="./1.html" style="text-decoration:none;">登录</a></h1>
+        <h1 style="color:#ddd;font-size: 30px;margin: 0;margin-left: auto;"><a href="./1.html" style="text-decoration:none;">登录</a></h1>
     </div>
-    <div style="color:blue;background:#e3f2fd;"><a href="./海贼王-艾斯.jpg" style="text-decoration:none;"> 目录
+    <div style="color:#ddd;"><a href="./海贼王-艾斯.jpg" style="text-decoration:none;"> 目录
         </a></div>
-    <div style="color: blue;background: #e3f2fd;"><a href="https://haowallpaper.com/" style="text-decoration:none;">图片</a></div>
-          <div style="color: blue;background: #e3f2fd;"><a href="https://music.163.com/" style="text-decoration:none;">音乐</a></div>
+    <div style="color: blue;"><a href="https://haowallpaper.com/" style="text-decoration:none;">图片</a></div>
+          <div style="color: blue;"><a href="./5.html" style="text-decoration:none;">音乐</a></div>
         
 </body>
 
