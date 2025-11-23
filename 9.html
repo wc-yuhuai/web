@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>照片展示</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    
+    <!-- 配置Tailwind自定义颜色和字体 -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#333333',
+                        secondary: '#666666',
+                        accent: '#999999',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+    
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .photo-grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+                gap: 1.5rem;
+            }
+            .photo-card {
+                transition: transform 0.3s ease, box-shadow 0.3s ease;
+            }
+            .photo-card:hover {
+                transform: translateY(-5px);
+                box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+            }
+            .photo-overlay {
+                background: linear-gradient(to top, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0) 100%);
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-100 text-primary">
+    <!-- 顶部导航栏 -->
+    <header class="bg-white shadow-sm sticky top-0 z-10">
+        <div class="container mx-auto px-4 py-4 flex justify-between items-center">
+            <h1 class="text-2xl font-bold">照片集</h1>
+            <div class="flex space-x-4">
+                <button class="text-secondary hover:text-primary transition-colors">
+                    <i class="fa fa-search text-xl"></i>
+                </button>
+                <button class="text-secondary hover:text-primary transition-colors">
+                    <i class="fa fa-user-circle text-xl"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- 主要内容区 -->
+    <main class="container mx-auto px-4 py-8">
+        <!-- 相册标题和描述 -->
+        <div class="mb-8 text-center">
+            <h2 class="text-[clamp(1.5rem,3vw,2.5rem)] font-bold mb-2">美好瞬间</h2>
+            <p class="text-secondary max-w-2xl mx-auto">记录生活中的每一个精彩时刻，留住美好回忆</p>
+        </div>
+        
+        <!-- 照片网格 -->
+        <div class="photo-grid">
+            <!-- 照片1 -->
+            <div class="photo-card bg-white rounded-xl overflow-hidden shadow-md">
+                <div class="relative h-64 overflow-hidden">
+                    <img src="https://picsum.photos/seed/photo1/600/400" alt="照片1" class="w-full h-full object-cover">
+                    <div class="photo-overlay absolute bottom-0 left-0 right-0 p-4">
+                        <span class="text-white text-sm">自然风光</span>
+                    </div>
+                </div>
+                <div class="p-4">
+                    <h3 class="font-semibold mb-1">山间小溪</h3>
+                    <p class="text-sm text-secondary mb-3">清澈的溪流穿过翠绿的山林</p>
+                    <div class="flex justify-between items-center">
+                        <span class="text-xs text-accent">2023-06-15</span>
+                        <button class="text-secondary hover:text-red-500 transition-colors">
+                            <i class="fa fa-heart-o"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 照片2 -->
+            <div class="photo-card bg-white rounded-xl overflow-hidden shadow-md">
+                <div class="relative h-64 overflow-hidden">
+                    <img src="https://picsum.photos/seed/photo2/600/400" alt="照片2" class="w-full h-full object-cover">
+                    <div class="photo-overlay absolute bottom-0 left-0 right-0 p-4">
+                        <span class="text-white text-sm">城市建筑</span>
+                    </div>
+                </div>
+                <div class="p-4">
+                    <h3 class="font-semibold mb-1">都市天际线</h3>
+                    <p class="text-sm text-secondary mb-3">现代都市的繁华与活力</p>
+                    <div class="flex justify-between items-center">
+                        <span class="text-xs text-accent">2023-07-02</span>
+                        <button class="text-red-500 transition-colors">
+                            <i class="fa fa-heart"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 照片3 -->
+            <div class="photo-card bg-white rounded-xl overflow-hidden shadow-md">
+                <div class="relative h-64 overflow-hidden">
+                    <img src="https://picsum.photos/seed/photo3/600/400" alt="照片3" class="w-full h-full object-cover">
+                    <div class="photo-overlay absolute bottom-0 left-0 right-0 p-4">
+                        <span class="text-white text-sm">美食</span>
+                    </div>
+                </div>
+                <div class="p-4">
+                    <h3 class="font-semibold mb-1">精致甜点</h3>
+                    <p class="text-sm text-secondary mb-3">手工制作的美味甜点</p>
+                    <div class="flex justify-between items-center">
+                        <span class="text-xs text-accent">2023-05-28</span>
+                        <button class="text-secondary hover:text-red-500 transition-colors">
+                            <i class="fa fa-heart-o"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 照片4 -->
+            <div class="photo-card bg-white rounded-xl overflow-hidden shadow-md">
+                <div class="relative h-64 overflow-hidden">
+                    <img src="https://picsum.photos/seed/photo4/600/400" alt="照片4" class="w-full h-full object-cover">
+                    <div class="photo-overlay absolute bottom-0 left-0 right-0 p-4">
+                        <span class="text-white text-sm">人物</span>
+                    </div>
+                </div>
+                <div class="p-4">
+                    <h3 class="font-semibold mb-1">微笑</h3>
+                    <p class="text-sm text-secondary mb-3">阳光下灿烂的笑容</p>
+                    <div class="flex justify-between items-center">
+                        <span class="text-xs text-accent">2023-08-10</span>
+                        <button class="text-secondary hover:text-red-500 transition-colors">
+                            <i class="fa fa-heart-o"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 照片5 -->
+            <div class="photo-card bg-white rounded-xl overflow-hidden shadow-md">
+                <div class="relative h-64 overflow-hidden">
+                    <img src="https://picsum.photos/seed/photo5/600/400" alt="照片5" class="w-full h-full object-cover">
+                    <div class="photo-overlay absolute bottom-0 left-0 right-0 p-4">
+                        <span class="text-white text-sm">动物</span>
+                    </div>
+                </div>
+                <div class="p-4">
+                    <h3 class="font-semibold mb-1">林间小鹿</h3>
+                    <p class="text-sm text-secondary mb-3">大自然中的可爱生灵</p>
+                    <div class="flex justify-between items-center">
+                        <span class="text-xs text-accent">2023-04-18</span>
+                        <button class="text-red-500 transition-colors">
+                            <i class="fa fa-heart"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 照片6 -->
+            <div class="photo-card bg-white rounded-xl overflow-hidden shadow-md">
+                <div class="relative h-64 overflow-hidden">
+                    <img src="https://picsum.photos/seed/photo6/600/400" alt="照片6" class="w-full h-full object-cover">
+                    <div class="photo-overlay absolute bottom-0 left-0 right-0 p-4">
+                        <span class="text-white text-sm">夜景</span>
+                    </div>
+                </div>
+                <div class="p-4">
+                    <h3 class="font-semibold mb-1">星空</h3>
+                    <p class="text-sm text-secondary mb-3">夜晚天空中璀璨的星辰</p>
+                    <div class="flex justify-between items-center">
+                        <span class="text-xs text-accent">2023-09-05</span>
+                        <button class="text-secondary hover:text-red-500 transition-colors">
+                            <i class="fa fa-heart-o"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 加载更多按钮 -->
+        <div class="mt-10 text-center">
+            <button class="bg-white border border-primary text-primary px-6 py-2 rounded-full hover:bg-primary hover:text-white transition-colors">
+                加载更多 <i class="fa fa-angle-down ml-1"></i>
+            </button>
+        </div>
+    </main>
+    
+    <!-- 页脚 -->
+    <footer class="bg-white mt-16 py-8 border-t">
+        <div class="container mx-auto px-4 text-center text-secondary text-sm">
+            <p>© 2023 照片集 - 记录生活中的美好瞬间</p>
+            <div class="flex justify-center space-x-4 mt-4">
+                <a href="#" class="hover:text-primary transition-colors"><i class="fa fa-weibo"></i></a>
+                <a href="#" class="hover:text-primary transition-colors"><i class="fa fa-wechat"></i></a>
+                <a href="#" class="hover:text-primary transition-colors"><i class="fa fa-instagram"></i></a>
+                <a href="#" class="hover:text-primary transition-colors"><i class="fa fa-twitter"></i></a>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // 实现点赞功能
+        document.querySelectorAll('.fa-heart, .fa-heart-o').forEach(icon => {
+            icon.parentElement.addEventListener('click', function() {
+                const iconElement = this.querySelector('i');
+                if (iconElement.classList.contains('fa-heart-o')) {
+                    iconElement.classList.remove('fa-heart-o');
+                    iconElement.classList.add('fa-heart');
+                    iconElement.parentElement.classList.remove('text-secondary');
+                    iconElement.parentElement.classList.add('text-red-500');
+                } else {
+                    iconElement.classList.remove('fa-heart');
+                    iconElement.classList.add('fa-heart-o');
+                    iconElement.parentElement.classList.remove('text-red-500');
+                    iconElement.parentElement.classList.add('text-secondary');
+                }
+            });
+        });
+        
+        // 实现加载更多功能
+        document.querySelector('button:contains("加载更多")').addEventListener('click', function() {
+            // 这里可以添加加载更多照片的逻辑
+            this.innerHTML = '<i class="fa fa-spinner fa-spin mr-2"></i> 加载中...';
+            
+            // 模拟加载延迟
+            setTimeout(() => {
+                this.innerHTML = '加载更多 <i class="fa fa-angle-down ml-1"></i>';
+                alert('已加载全部照片');
+            }, 1500);
+        });
+    </script>
+</body>
+</html>
