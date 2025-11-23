@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>梦源</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    
+    <!-- 配置Tailwind自定义颜色和字体 -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#a8d1e7',
+                        secondary: '#f8b195',
+                        accent: '#6c5b7b',
+                        light: '#fdfbfb',
+                        dark: '#2b2e4a'
+                    },
+                    fontFamily: {
+                        cursive: ['Segoe Script', 'Brush Script MT', 'cursive'],
+                        sans: ['Inter', 'system-ui', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .glass-effect {
+                background: rgba(255, 255, 255, 0.25);
+                backdrop-filter: blur(10px);
+                -webkit-backdrop-filter: blur(10px);
+                border: 1px solid rgba(255, 255, 255, 0.18);
+            }
+            .card-shadow {
+                box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
+            }
+            .btn-hover {
+                transition: all 0.3s ease;
+            }
+            .btn-hover:hover {
+                transform: translateY(-3px);
+                box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+            }
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-primary to-light min-h-screen font-sans">
+    <!-- 顶部导航栏 -->
+    <header class="glass-effect sticky top-0 z-50 py-4 px-6 flex justify-between items-center">
+        <div class="flex items-center space-x-3">
+            <img src="./pic1.jpg" alt="头像" class="w-10 h-10 rounded-full object-cover">
+            <h1 class="text-xl font-cursive text-dark font-bold">wc-yuhaui | MyIndex</h1>
+        </div>
+        <button class="text-dark focus:outline-none">
+            <i class="fa fa-bars text-xl"></i>
+        </button>
+    </header>
+
+    <main class="container mx-auto px-6 py-8">
+        <!-- 快捷图标区 -->
+        <div class="grid grid-cols-4 gap-4 mb-8">
+            <a href="./" class="flex flex-col items-center justify-center p-4 glass-effect rounded-xl card-shadow btn-hover">
+                <div class="w-12 h-12 rounded-full bg-gray-200 flex items-center justify-center mb-2">
+                    <i class="fa fa-user text-gray-600"></i>
+                </div>
+            </a>
+            <a href="#" class="flex flex-col items-center justify-center p-4 glass-effect rounded-xl card-shadow btn-hover">
+                <div class="w-12 h-12 rounded-full bg-secondary/30 flex items-center justify-center mb-2">
+                    <i class="fa fa-envelope text-accent"></i>
+                </div>
+            </a>
+            <a href="" class="flex flex-col items-center justify-center p-4 glass-effect rounded-xl card-shadow btn-hover">
+                <div class="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center mb-2">
+                    <i class="fa fa-qq text-blue-500"></i>
+                </div>
+            </a>
+            <a href="#" class="flex flex-col items-center justify-center p-4 glass-effect rounded-xl card-shadow btn-hover">
+                <div class="w-12 h-12 rounded-full bg-pink-100 flex items-center justify-center mb-2">
+                    <i class="fa fa-television text-pink-500"></i>
+                </div>
+            </a>
+        </div>
+
+        <!-- 时间和诗词卡片 -->
+        <div class="glass-effect rounded-2xl p-6 mb-8 card-shadow">
+            <div class="text-3xl font-bold text-dark mb-2" id="currentTime">16:18:39</div>
+            <div class="text-lg text-dark/80 mb-1" id="currentPeriod">PM</div>
+            <div class="text-lg text-dark/70 mb-4" id="currentDate">Friday, 21 November</div>
+            
+            <div class="border-t border-white/30 pt-4">
+                <p class="text-lg text-dark/90 leading-relaxed mb-2">
+                    谁都会犯错误，所以人们才会在铅笔的另一头装上橡皮。
+                </p>
+                <p class="text-right text-dark/60">——《海绵宝宝》</p>
+            </div>
+        </div>
+
+        <!-- 红圈标注的链接区域 - 代码结构完全一致 -->
+        <div class="space-y-4">
+            <!-- 链接1 -->
+            <a href="#" class="block glass-effect rounded-xl p-5 card-shadow btn-hover">
+                <div class="flex justify-between items-center">
+                    <span class="text-lg font-medium text-dark"></span>
+                    <i class="fa fa-arrow-right text-dark/60"></i>
+                </div>
+            </a>
+            
+            <!-- 链接2 - 与链接1代码结构完全相同 -->
+            <a href="#" class="block glass-effect rounded-xl p-5 card-shadow btn-hover">
+                <div class="flex justify-between items-center">
+                    <span class="text-lg font-medium text-dark"></span>
+                    <i class="fa fa-arrow-right text-dark/60"></i>
+                </div>
+            </a>
+            
+            <!-- 链接3 - 与链接1代码结构完全相同 -->
+            <a href="#" class="block glass-effect rounded-xl p-5 card-shadow btn-hover">
+                <div class="flex justify-between items-center">
+                    <span class="text-lg font-medium text-dark"></span>
+                    <i class="fa fa-arrow-right text-dark/60"></i>
+                </div>
+            </a>
+            
+            <!-- 链接4 - 与链接1代码结构完全相同 -->
+            <a href="#" class="block glass-effect rounded-xl p-5 card-shadow btn-hover">
+                <div class="flex justify-between items-center">
+                    <span class="text-lg font-medium text-dark"></span>
+                    <i class="fa fa-arrow-right text-dark/60"></i>
+                </div>
+            </a>
+        </div>
+    </main>
+
+    <!-- 底部导航 -->
+    <footer class="glass-effect fixed bottom-0 left-0 right-0 py-3 px-6">
+        <div class="flex justify-around items-center">
+            <a href="#" class="text-dark/60 hover:text-dark transition-colors">
+                <i class="fa fa-arrow-left text-xl"></i>
+            </a>
+            <a href="#" class="text-dark/60 hover:text-dark transition-colors">
+                <i class="fa fa-play-circle text-xl"></i>
+            </a>
+            <a href="#" class="text-dark/60 hover:text-dark transition-colors">
+                <i class="fa fa-th text-xl"></i>
+            </a>
+            <a href="#" class="text-dark/60 hover:text-dark transition-colors relative">
+                <i class="fa fa-comment text-xl"></i>
+                <span class="absolute -top-2 -right-2 bg-secondary text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">1</span>
+            </a>
+            <a href="#" class="text-dark/60 hover:text-dark transition-colors">
+                <i class="fa fa-home text-xl"></i>
+            </a>
+        </div>
+    </footer>
+
+    <script>
+        // 更新当前时间
+        function updateTime() {
+            const now = new Date();
+            
+            // 格式化时间
+            let hours = now.getHours();
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            const seconds = String(now.getSeconds()).padStart(2, '0');
+            
+            // 确定上午/下午
+            const period = hours >= 12 ? 'PM' : 'AM';
+            
+            // 转换为12小时制
+            hours = hours % 24;
+            hours = hours ? hours : 24; // 0应该显示为12
+            hours = String(hours).padStart(2, '0');
+            
+            // 格式化日期
+            const options = { weekday: 'long', month: 'long', day: 'numeric' };
+            const dateStr = now.toLocaleDateString('en-US', options);
+            
+            // 更新DOM
+            document.getElementById('currentTime').textContent = `${hours}:${minutes}:${seconds}`;
+            document.getElementById('currentPeriod').textContent = period;
+            document.getElementById('currentDate').textContent = dateStr;
+        }
+        
+        // 初始更新并设置定时器
+        updateTime();
+        setInterval(updateTime, 1000);
+    </script>
+</body>
+</html>
