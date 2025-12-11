@@ -135,6 +135,14 @@
             background: #d35400;
         }
         
+        .btn-secondary {
+            background: #95a5a6;
+        }
+        
+        .btn-secondary:hover {
+            background: #7f8c8d;
+        }
+        
         .form-group {
             margin-bottom: 15px;
         }
@@ -411,12 +419,104 @@
         .close:hover {
             color: #000;
         }
+        
+        .image-frame {
+            display: inline-block;
+            position: relative;
+            margin: 10px;
+            border: 2px dashed #3498db;
+            border-radius: 5px;
+            padding: 5px;
+            background: #f8f9fa;
+        }
+        
+        .image-frame img {
+            max-width: 100%;
+            height: auto;
+            display: block;
+        }
+        
+        .frame-controls {
+            position: absolute;
+            top: -10px;
+            right: -10px;
+            background: #e74c3c;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+        }
+        
+        .insert-image-btn {
+            background: #9b59b6 !important;
+            margin-top: 10px;
+        }
+        
+        .insert-image-btn:hover {
+            background: #8e44ad !important;
+        }
+        
+        .image-insert-form {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 10px 0;
+            display: none;
+        }
+        
+        .image-insert-form.active {
+            display: block;
+        }
+        
+        .image-preview {
+            max-width: 100%;
+            max-height: 200px;
+            margin: 10px 0;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        
+        .file-input-wrapper {
+            position: relative;
+            display: inline-block;
+            overflow: hidden;
+        }
+        
+        .file-input-wrapper input[type=file] {
+            position: absolute;
+            left: 0;
+            top: 0;
+            opacity: 0;
+            cursor: pointer;
+            width: 100%;
+            height: 100%;
+        }
+        
+        .file-input-button {
+            display: inline-block;
+            padding: 10px 15px;
+            background: #3498db;
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .file-input-button:hover {
+            background: #2980b9;
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <header>
-            <h1><i class="fas fa-book"></i> DreamLib </h1>
+            <h1><i class="fas fa-book"></i> DreamLib</h1>
             <p class="subtitle">创建、编辑和管理您的个性化图书。自定义书名、封面、章节和内容，并保存至云端数据库。</p>
         </header>
         
@@ -453,8 +553,17 @@
                 </div>
                 
                 <div class="form-group">
-                    <label for="bookCover">封面图片URL</label>
-                    <input type="text" id="bookCover" placeholder="请输入封面图片链接">
+                    <label for="bookCover">封面图片</label>
+                    <input type="text" id="bookCover" placeholder="粘贴图片链接或上传图片">
+                </div>
+                
+                <div class="controls">
+                    <div class="file-input-wrapper">
+                        <div class="file-input-button">
+                            <i class="fas fa-upload"></i> 上传封面
+                        </div>
+                        <input type="file" id="coverFileInput" accept="image/*">
+                    </div>
                 </div>
                 
                 <div class="form-group">
@@ -522,9 +631,36 @@
                     <button class="btn btn-success" id="saveContentBtn">
                         <i class="fas fa-save"></i> 保存内容
                     </button>
+                    <button class="btn insert-image-btn" id="insertImageBtn">
+                        <i class="fas fa-image"></i> 插入图片
+                    </button>
                     <button class="btn" id="previewContentBtn">
                         <i class="fas fa-eye"></i> 预览内容
                     </button>
+                </div>
+                
+                <div class="image-insert-form" id="imageInsertForm">
+                    <div class="form-group">
+                        <label for="imageUrl">图片链接</label>
+                        <input type="text" id="imageUrl" placeholder="粘贴图片链接或上传图片">
+                    </div>
+                    
+                    <div class="controls">
+                        <div class="file-input-wrapper">
+                            <div class="file-input-button">
+                                <i class="fas fa-upload"></i> 上传图片
+                            </div>
+                            <input type="file" id="imageFileInput" accept="image/*">
+                        </div>
+                        <button class="btn btn-success" id="confirmInsertBtn">
+                            <i class="fas fa-check"></i> 插入图片
+                        </button>
+                        <button class="btn btn-danger" id="cancelInsertBtn">
+                            <i class="fas fa-times"></i> 取消
+                        </button>
+                    </div>
+                    
+                    <div id="imagePreviewContainer"></div>
                 </div>
             </section>
         </div>
@@ -561,6 +697,7 @@
         const bookAuthorInput = document.getElementById('bookAuthor');
         const bookDescriptionInput = document.getElementById('bookDescription');
         const bookCoverInput = document.getElementById('bookCover');
+        const coverFileInput = document.getElementById('coverFileInput');
         const coverPreview = document.getElementById('coverPreview');
         const chapterList = document.getElementById('chapterList');
         const emptyChapterMessage = document.getElementById('emptyChapterMessage');
@@ -573,6 +710,13 @@
         const lastSaved = document.getElementById('lastSaved');
         const libraryModal = document.getElementById('libraryModal');
         const closeModal = document.querySelector('.close');
+        const insertImageBtn = document.getElementById('insertImageBtn');
+        const imageInsertForm = document.getElementById('imageInsertForm');
+        const imageUrlInput = document.getElementById('imageUrl');
+        const imageFileInput = document.getElementById('imageFileInput');
+        const confirmInsertBtn = document.getElementById('confirmInsertBtn');
+        const cancelInsertBtn = document.getElementById('cancelInsertBtn');
+        const imagePreviewContainer = document.getElementById('imagePreviewContainer');
         
         // 初始化
         document.addEventListener('DOMContentLoaded', function() {
@@ -586,10 +730,15 @@
             document.getElementById('saveContentBtn').addEventListener('click', saveChapterContent);
             document.getElementById('previewContentBtn').addEventListener('click', previewContent);
             
-            // 监听封面URL变化
-            bookCoverInput.addEventListener('input', function() {
-                coverPreview.src = this.value || 'data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'200\' height=\'280\' viewBox=\'0 0 200 280\'%3E%3Crect fill=\'%23e0e0e0\' width=\'200\' height=\'280\'/%3E%3Ctext x=\'50%25\' y=\'50%25\' dominant-baseline=\'middle\' text-anchor=\'middle\' fill=\'%23999\' font-size=\'14\' font-family=\'Arial\'%3E图书封面%3C/text%3E%3C/svg%3E';
-            });
+            // 封面相关事件
+            bookCoverInput.addEventListener('input', updateCoverPreview);
+            coverFileInput.addEventListener('change', handleCoverUpload);
+            
+            // 图片插入相关事件
+            insertImageBtn.addEventListener('click', toggleImageInsertForm);
+            imageFileInput.addEventListener('change', handleImageUpload);
+            confirmInsertBtn.addEventListener('click', insertImageToContent);
+            cancelInsertBtn.addEventListener('click', closeImageInsertForm);
             
             // 模态框关闭事件
             closeModal.addEventListener('click', function() {
@@ -615,7 +764,7 @@
                 description: '这是一本关于梦想与探索的奇幻小说，讲述了主人公在神秘世界中的冒险故事。',
                 cover: 'https://images.unsplash.com/photo-1544947950-fa07a98d237f?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80',
                 chapters: [
-                    { id: 'ch-1', number: 1, title: '第一章 梦的开始', content: '很久很久以前，在一个遥远的地方...' },
+                    { id: 'ch-1', number: 1, title: '第一章 梦的开始', content: '很久很久以前，在一个遥远的地方...\n\n<div class="image-frame"><img src="https://images.unsplash.com/photo-1501854140801-50d01698950b?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80" alt="风景图"><button class="frame-controls" onclick="removeImageFrame(this)">×</button></div>\n\n主人公踏上了他的冒险之路。' },
                     { id: 'ch-2', number: 2, title: '第二章 神秘森林', content: '主人公踏入了传说中的神秘森林...' },
                     { id: 'ch-3', number: 3, title: '第三章 遇见精灵', content: '在森林深处，主人公遇见了一群友善的精灵...' }
                 ],
@@ -625,6 +774,98 @@
             renderBookInfo();
             renderChapterList();
             updateStatusBar('就绪', true);
+        }
+        
+        // 更新封面预览
+        function updateCoverPreview() {
+            const url = bookCoverInput.value.trim();
+            if (url) {
+                coverPreview.src = url;
+            } else {
+                coverPreview.src = 'data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'200\' height=\'280\' viewBox=\'0 0 200 280\'%3E%3Crect fill=\'%23e0e0e0\' width=\'200\' height=\'280\'/%3E%3Ctext x=\'50%25\' y=\'50%25\' dominant-baseline=\'middle\' text-anchor=\'middle\' fill=\'%23999\' font-size=\'14\' font-family=\'Arial\'%3E图书封面%3C/text%3E%3C/svg%3E';
+            }
+        }
+        
+        // 处理封面上传
+        function handleCoverUpload(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    bookCoverInput.value = e.target.result;
+                    coverPreview.src = e.target.result;
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+        
+        // 切换图片插入表单显示/隐藏
+        function toggleImageInsertForm() {
+            imageInsertForm.classList.toggle('active');
+            if (imageInsertForm.classList.contains('active')) {
+                imageUrlInput.focus();
+            } else {
+                closeImageInsertForm();
+            }
+        }
+        
+        // 处理图片上传
+        function handleImageUpload(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    imageUrlInput.value = e.target.result;
+                    showImagePreview(e.target.result);
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+        
+        // 显示图片预览
+        function showImagePreview(url) {
+            imagePreviewContainer.innerHTML = `<img src="${url}" class="image-preview" alt="预览图">`;
+        }
+        
+        // 关闭图片插入表单
+        function closeImageInsertForm() {
+            imageInsertForm.classList.remove('active');
+            imageUrlInput.value = '';
+            imagePreviewContainer.innerHTML = '';
+        }
+        
+        // 插入图片到内容中
+        function insertImageToContent() {
+            const url = imageUrlInput.value.trim();
+            if (!url) {
+                alert('请输入图片链接或上传图片');
+                return;
+            }
+            
+            const imgHtml = `<div class="image-frame"><img src="${url}" alt="插入的图片"><button class="frame-controls" onclick="removeImageFrame(this)">×</button></div>`;
+            
+            // 获取光标位置并插入图片
+            const textarea = chapterContentTextarea;
+            const startPos = textarea.selectionStart;
+            const endPos = textarea.selectionEnd;
+            const textBefore = textarea.value.substring(0, startPos);
+            const textAfter = textarea.value.substring(endPos, textarea.value.length);
+            
+            textarea.value = textBefore + imgHtml + textAfter;
+            
+            // 移动光标到插入内容后
+            textarea.selectionStart = startPos + imgHtml.length;
+            textarea.selectionEnd = startPos + imgHtml.length;
+            
+            textarea.focus();
+            
+            closeImageInsertForm();
+        }
+        
+        // 删除图片框架
+        function removeImageFrame(button) {
+            const frame = button.parentElement;
+            frame.remove();
         }
         
         // 创建新图书
@@ -889,6 +1130,20 @@
                             margin-bottom: 20px; 
                             border-bottom: 1px solid #eee;
                             padding-bottom: 10px;
+                        }
+                        .image-frame {
+                            display: inline-block;
+                            position: relative;
+                            margin: 10px;
+                            border: 2px dashed #3498db;
+                            border-radius: 5px;
+                            padding: 5px;
+                            background: #f8f9fa;
+                        }
+                        .image-frame img {
+                            max-width: 100%;
+                            height: auto;
+                            display: block;
                         }
                     </style>
                 </head>
