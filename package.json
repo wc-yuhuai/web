@@ -12,9 +12,6 @@
   },
   "dependencies": {
     "@hono/node-server": "^1.19.7",
-    "body-parser": "^2.2.1",
-    "cors": "^2.8.5",
-    "express": "^5.2.1",
     "hono": "^4.10.8",
     "mysql2": "^3.15.3"
   }
