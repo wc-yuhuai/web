@@ -484,6 +484,93 @@
             display: block;
         }
 
+        /* 热门框架数据样式 */
+        .hot-frameworks-container {
+            max-width: 1200px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+
+        .hot-frameworks-title {
+            text-align: center;
+            font-size: 28px;
+            color: #333;
+            margin-bottom: 30px;
+            font-weight: bold;
+        }
+
+        .hot-frameworks-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+        }
+
+        .framework-card {
+            background: rgba(255, 255, 255, 0.85);
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            border: 1px solid #e0e0e0;
+            text-align: center;
+        }
+
+        .framework-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
+            background: rgba(255, 255, 255, 0.95);
+        }
+
+        .framework-icon {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 36px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .framework-name {
+            font-size: 20px;
+            font-weight: bold;
+            color: #333;
+            margin: 10px 0;
+        }
+
+        .framework-description {
+            font-size: 14px;
+            color: #666;
+            line-height: 1.5;
+            margin-bottom: 15px;
+        }
+
+        .framework-stats {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid #eee;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 16px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: #999;
+        }
+
         /* 响应式适配（手机端） */
         @media (max-width: 480px) {
             .logo {
@@ -553,6 +640,14 @@
             .avatar-actions {
                 flex-direction: column;
             }
+
+            .hot-frameworks-title {
+                font-size: 22px;
+            }
+
+            .hot-frameworks-grid {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
 </head>
@@ -620,6 +715,92 @@
             <button class="nav-btn">我的</button>
         </a>
    
+    </div>
+
+    <!-- 热门框架数据 -->
+    <div class="hot-frameworks-container">
+        <h2 class="hot-frameworks-title">热门框架数据</h2>
+        <div class="hot-frameworks-grid">
+            <div class="framework-card">
+                <div class="framework-icon">⚛️</div>
+                <h3 class="framework-name">React</h3>
+                <p class="framework-description">用于构建用户界面的 JavaScript 库，专注于 UI 层，可以与其他库或现有项目集成。</p>
+                <div class="framework-stats">
+                    <div class="stat-item">
+                        <div class="stat-value">45K+</div>
+                        <div class="stat-label">Stars</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value">1.2K</div>
+                        <div class="stat-label">Contributors</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value">98%</div>
+                        <div class="stat-label">Satisfaction</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="framework-card">
+                <div class="framework-icon">⚡</div>
+                <h3 class="framework-name">Vue.js</h3>
+                <p class="framework-description">渐进式 JavaScript 框架，易于上手，API 设计简洁直观，适合快速开发。</p>
+                <div class="framework-stats">
+                    <div class="stat-item">
+                        <div class="stat-value">38K+</div>
+                        <div class="stat-label">Stars</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value">900+</div>
+                        <div class="stat-label">Contributors</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value">96%</div>
+                        <div class="stat-label">Satisfaction</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="framework-card">
+                <div class="framework-icon">🔥</div>
+                <h3 class="framework-name">Angular</h3>
+                <p class="framework-description">由 Google 开发的平台和框架，用于构建客户端应用程序，使用 TypeScript 编写。</p>
+                <div class="framework-stats">
+                    <div class="stat-item">
+                        <div class="stat-value">52K+</div>
+                        <div class="stat-label">Stars</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value">1.5K</div>
+                        <div class="stat-label">Contributors</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value">94%</div>
+                        <div class="stat-label">Satisfaction</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="framework-card">
+                <div class="framework-icon">🚀</div>
+                <h3 class="framework-name">Svelte</h3>
+                <p class="framework-description">新一代前端框架，在构建时将代码转换为高效的原生 JavaScript，运行时性能优异。</p>
+                <div class="framework-stats">
+                    <div class="stat-item">
+                        <div class="stat-value">58K+</div>
+                        <div class="stat-label">Stars</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value">400+</div>
+                        <div class="stat-label">Contributors</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value">97%</div>
+                        <div class="stat-label">Satisfaction</div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- 菜单链接 -->

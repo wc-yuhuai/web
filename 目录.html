@@ -104,6 +104,9 @@
             align-items: center;
             gap: 5px;
             transition: all 0.3s;
+            font-size: 16px;
+            min-width: 120px;
+            justify-content: center;
         }
         
         .btn:hover {
@@ -141,6 +144,14 @@
         
         .btn-secondary:hover {
             background: #7f8c8d;
+        }
+        
+        .insert-image-btn {
+            background: #9b59b6 !important;
+        }
+        
+        .insert-image-btn:hover {
+            background: #8e44ad !important;
         }
         
         .form-group {
@@ -453,15 +464,6 @@
             font-size: 12px;
         }
         
-        .insert-image-btn {
-            background: #9b59b6 !important;
-            margin-top: 10px;
-        }
-        
-        .insert-image-btn:hover {
-            background: #8e44ad !important;
-        }
-        
         .image-insert-form {
             background: #f8f9fa;
             padding: 15px;
@@ -510,6 +512,18 @@
         
         .file-input-button:hover {
             background: #2980b9;
+        }
+        
+        .unsaved-warning {
+            color: #e74c3c;
+            font-weight: bold;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { opacity: 0.8; }
+            50% { opacity: 1; }
+            100% { opacity: 0.8; }
         }
     </style>
 </head>
@@ -592,7 +606,6 @@
                 
                 <div class="chapters-container">
                     <ul class="chapter-list" id="chapterList">
-                        <!-- 章节列表将通过JS动态添加 -->
                         <li class="empty-message" id="emptyChapterMessage">暂无章节，请添加新章节</li>
                     </ul>
                 </div>
@@ -628,11 +641,12 @@
                 </div>
                 
                 <div class="controls" style="margin-top: 15px;">
-                    <button class="btn btn-success" id="saveContentBtn">
-                        <i class="fas fa-save"></i> 保存内容
-                    </button>
+                    <!-- 调整顺序：插入图片 → 保存内容 → 预览 -->
                     <button class="btn insert-image-btn" id="insertImageBtn">
                         <i class="fas fa-image"></i> 插入图片
+                    </button>
+                    <button class="btn btn-success" id="saveContentBtn">
+                        <i class="fas fa-save"></i> 保存内容
                     </button>
                     <button class="btn" id="previewContentBtn">
                         <i class="fas fa-eye"></i> 预览内容
@@ -671,15 +685,26 @@
                 <span class="close">&times;</span>
                 <h2><i class="fas fa-bookmark"></i> 我的书库</h2>
                 <div id="libraryBooks">
-                    <!-- 书库内容将通过JS动态添加 -->
                     <div class="empty-message">您还没有创建任何图书</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 确认保存模态框 -->
+        <div id="confirmModal" class="modal">
+            <div class="modal-content">
+                <h3><i class="fas fa-exclamation-triangle"></i> 确认新建图书</h3>
+                <p id="confirmMessage">当前图书有未保存的更改，确定要创建新图书吗？未保存的内容将会丢失。</p>
+                <div class="controls" style="margin-top: 20px; justify-content: flex-end;">
+                    <button class="btn btn-secondary" id="cancelNewBookBtn">取消</button>
+                    <button class="btn btn-warning" id="saveAndNewBookBtn">保存并新建</button>
+                    <button class="btn btn-danger" id="confirmNewBookBtn">不保存，直接新建</button>
                 </div>
             </div>
         </div>
     </div>
 
     <script>
-        // 数据模型
         let currentBook = {
             id: null,
             title: '',
@@ -691,8 +716,8 @@
         };
         
         let currentChapterId = null;
+        let hasUnsavedChanges = false;
         
-        // DOM元素
         const bookTitleInput = document.getElementById('bookTitle');
         const bookAuthorInput = document.getElementById('bookAuthor');
         const bookDescriptionInput = document.getElementById('bookDescription');
@@ -709,7 +734,9 @@
         const statusText = document.getElementById('statusText');
         const lastSaved = document.getElementById('lastSaved');
         const libraryModal = document.getElementById('libraryModal');
-        const closeModal = document.querySelector('.close');
+        const confirmModal = document.getElementById('confirmModal');
+        const closeModal = document.querySelectorAll('.close')[0];
+        const closeConfirmModal = document.querySelectorAll('.close')[1] || document.createElement('span');
         const insertImageBtn = document.getElementById('insertImageBtn');
         const imageInsertForm = document.getElementById('imageInsertForm');
         const imageUrlInput = document.getElementById('imageUrl');
@@ -717,11 +744,13 @@
         const confirmInsertBtn = document.getElementById('confirmInsertBtn');
         const cancelInsertBtn = document.getElementById('cancelInsertBtn');
         const imagePreviewContainer = document.getElementById('imagePreviewContainer');
+        const cancelNewBookBtn = document.getElementById('cancelNewBookBtn');
+        const saveAndNewBookBtn = document.getElementById('saveAndNewBookBtn');
+        const confirmNewBookBtn = document.getElementById('confirmNewBookBtn');
+        const confirmMessage = document.getElementById('confirmMessage');
         
-        // 初始化
         document.addEventListener('DOMContentLoaded', function() {
-            // 绑定事件
-            document.getElementById('newBookBtn').addEventListener('click', createNewBook);
+            document.getElementById('newBookBtn').addEventListener('click', checkUnsavedChanges);
             document.getElementById('saveBookBtn').addEventListener('click', saveBook);
             document.getElementById('loadBookBtn').addEventListener('click', showLibrary);
             document.getElementById('addChapterBtn').addEventListener('click', addChapter);
@@ -730,35 +759,66 @@
             document.getElementById('saveContentBtn').addEventListener('click', saveChapterContent);
             document.getElementById('previewContentBtn').addEventListener('click', previewContent);
             
-            // 封面相关事件
-            bookCoverInput.addEventListener('input', updateCoverPreview);
+            bookTitleInput.addEventListener('input', markUnsaved);
+            bookAuthorInput.addEventListener('input', markUnsaved);
+            bookDescriptionInput.addEventListener('input', markUnsaved);
+            bookCoverInput.addEventListener('input', function() {
+                markUnsaved();
+                updateCoverPreview();
+            });
+            
+            chapterTitleInput.addEventListener('input', markUnsaved);
+            chapterNumberInput.addEventListener('input', markUnsaved);
+            chapterContentTextarea.addEventListener('input', markUnsaved);
+            
             coverFileInput.addEventListener('change', handleCoverUpload);
             
-            // 图片插入相关事件
             insertImageBtn.addEventListener('click', toggleImageInsertForm);
             imageFileInput.addEventListener('change', handleImageUpload);
             confirmInsertBtn.addEventListener('click', insertImageToContent);
             cancelInsertBtn.addEventListener('click', closeImageInsertForm);
             
-            // 模态框关闭事件
-            closeModal.addEventListener('click', function() {
-                libraryModal.style.display = 'none';
+            cancelNewBookBtn.addEventListener('click', () => confirmModal.style.display = 'none');
+            saveAndNewBookBtn.addEventListener('click', saveAndNewBook);
+            confirmNewBookBtn.addEventListener('click', confirmNewBook);
+            
+            closeModal.addEventListener('click', () => libraryModal.style.display = 'none');
+            window.addEventListener('click', (event) => {
+                if (event.target === libraryModal) libraryModal.style.display = 'none';
+                if (event.target === confirmModal) confirmModal.style.display = 'none';
             });
             
-            window.addEventListener('click', function(event) {
-                if (event.target === libraryModal) {
-                    libraryModal.style.display = 'none';
-                }
-            });
-            
-            // 初始化示例数据
-            initializeSampleData();
+            loadBooksFromStorage();
         });
         
-        // 初始化示例数据
+        function markUnsaved() {
+            hasUnsavedChanges = true;
+            if (!statusText.textContent.includes('未保存')) {
+                statusText.textContent = '有未保存的更改';
+                statusText.className = 'unsaved-warning';
+            }
+        }
+        
+        function loadBooksFromStorage() {
+            const books = JSON.parse(localStorage.getItem('dream_books') || '[]');
+            if (books.length > 0) {
+                // 加载最新的图书作为示例
+                currentBook = {...books[books.length - 1]};
+                renderBookInfo();
+                renderChapterList();
+                updateStatusBar('数据已从本地加载', true);
+                if (currentBook.lastModified) {
+                    lastSaved.textContent = `上次保存: ${formatDate(currentBook.lastModified)}`;
+                }
+                hasUnsavedChanges = false;
+            } else {
+                initializeSampleData();
+            }
+        }
+        
         function initializeSampleData() {
             currentBook = {
-                id: 'sample-1',
+                id: 'sample_' + Date.now(),
                 title: '梦幻之旅',
                 author: '梦源作者',
                 description: '这是一本关于梦想与探索的奇幻小说，讲述了主人公在神秘世界中的冒险故事。',
@@ -774,32 +834,28 @@
             renderBookInfo();
             renderChapterList();
             updateStatusBar('就绪', true);
+            lastSaved.textContent = `上次保存: ${formatDate(currentBook.lastModified)}`;
+            hasUnsavedChanges = false;
         }
         
-        // 更新封面预览
         function updateCoverPreview() {
             const url = bookCoverInput.value.trim();
-            if (url) {
-                coverPreview.src = url;
-            } else {
-                coverPreview.src = 'data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'200\' height=\'280\' viewBox=\'0 0 200 280\'%3E%3Crect fill=\'%23e0e0e0\' width=\'200\' height=\'280\'/%3E%3Ctext x=\'50%25\' y=\'50%25\' dominant-baseline=\'middle\' text-anchor=\'middle\' fill=\'%23999\' font-size=\'14\' font-family=\'Arial\'%3E图书封面%3C/text%3E%3C/svg%3E';
-            }
+            coverPreview.src = url || 'data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'200\' height=\'280\' viewBox=\'0 0 200 280\'%3E%3Crect fill=\'%23e0e0e0\' width=\'200\' height=\'280\'/%3E%3Ctext x=\'50%25\' y=\'50%25\' dominant-baseline=\'middle\' text-anchor=\'middle\' fill=\'%23999\' font-size=\'14\' font-family=\'Arial\'%3E图书封面%3C/text%3E%3C/svg%3E';
         }
         
-        // 处理封面上传
         function handleCoverUpload(event) {
             const file = event.target.files[0];
             if (file) {
                 const reader = new FileReader();
-                reader.onload = function(e) {
+                reader.onload = e => {
                     bookCoverInput.value = e.target.result;
                     coverPreview.src = e.target.result;
+                    markUnsaved();
                 };
                 reader.readAsDataURL(file);
             }
         }
         
-        // 切换图片插入表单显示/隐藏
         function toggleImageInsertForm() {
             imageInsertForm.classList.toggle('active');
             if (imageInsertForm.classList.contains('active')) {
@@ -809,12 +865,11 @@
             }
         }
         
-        // 处理图片上传
         function handleImageUpload(event) {
             const file = event.target.files[0];
             if (file) {
                 const reader = new FileReader();
-                reader.onload = function(e) {
+                reader.onload = e => {
                     imageUrlInput.value = e.target.result;
                     showImagePreview(e.target.result);
                 };
@@ -822,19 +877,16 @@
             }
         }
         
-        // 显示图片预览
         function showImagePreview(url) {
             imagePreviewContainer.innerHTML = `<img src="${url}" class="image-preview" alt="预览图">`;
         }
         
-        // 关闭图片插入表单
         function closeImageInsertForm() {
             imageInsertForm.classList.remove('active');
             imageUrlInput.value = '';
             imagePreviewContainer.innerHTML = '';
         }
         
-        // 插入图片到内容中
         function insertImageToContent() {
             const url = imageUrlInput.value.trim();
             if (!url) {
@@ -844,7 +896,6 @@
             
             const imgHtml = `<div class="image-frame"><img src="${url}" alt="插入的图片"><button class="frame-controls" onclick="removeImageFrame(this)">×</button></div>`;
             
-            // 获取光标位置并插入图片
             const textarea = chapterContentTextarea;
             const startPos = textarea.selectionStart;
             const endPos = textarea.selectionEnd;
@@ -852,73 +903,95 @@
             const textAfter = textarea.value.substring(endPos, textarea.value.length);
             
             textarea.value = textBefore + imgHtml + textAfter;
-            
-            // 移动光标到插入内容后
-            textarea.selectionStart = startPos + imgHtml.length;
-            textarea.selectionEnd = startPos + imgHtml.length;
-            
+            textarea.selectionStart = textarea.selectionEnd = startPos + imgHtml.length;
             textarea.focus();
+            markUnsaved();
             
             closeImageInsertForm();
         }
         
-        // 删除图片框架
-        function removeImageFrame(button) {
-            const frame = button.parentElement;
-            frame.remove();
-        }
+        window.removeImageFrame = function(button) {
+            button.closest('.image-frame').remove();
+        };
         
-        // 创建新图书
-        function createNewBook() {
-            if (confirm('确定要创建新图书吗？当前内容将会丢失。')) {
-                currentBook = {
-                    id: 'book-' + Date.now(),
-                    title: '',
-                    author: '',
-                    description: '',
-                    cover: '',
-                    chapters: [],
-                    lastModified: new Date()
-                };
-                
-                renderBookInfo();
-                renderChapterList();
-                updateStatusBar('新建图书', true);
+        function checkUnsavedChanges() {
+            if (hasUnsavedChanges) {
+                confirmMessage.textContent = '当前图书有未保存的更改，确定要创建新图书吗？未保存的内容将会丢失。';
+                confirmModal.style.display = 'block';
+            } else {
+                createNewBook();
             }
         }
         
-        // 渲染图书信息
-        function renderBookInfo() {
-            bookTitleInput.value = currentBook.title;
-            bookAuthorInput.value = currentBook.author;
-            bookDescriptionInput.value = currentBook.description;
-            bookCoverInput.value = currentBook.cover;
-            coverPreview.src = currentBook.cover || 'data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'200\' height=\'280\' viewBox=\'0 0 200 280\'%3E%3Crect fill=\'%23e0e0e0\' width=\'200\' height=\'280\'/%3E%3Ctext x=\'50%25\' y=\'50%25\' dominant-baseline=\'middle\' text-anchor=\'middle\' fill=\'%23999\' font-size=\'14\' font-family=\'Arial\'%3E图书封面%3C/text%3E%3C/svg%3E';
+        function saveAndNewBook() {
+            saveBook();
+            setTimeout(() => {
+                confirmModal.style.display = 'none';
+                createNewBook();
+            }, 100);
         }
         
-        // 渲染章节列表
+        function confirmNewBook() {
+            confirmModal.style.display = 'none';
+            createNewBook();
+        }
+        
+        function createNewBook() {
+            currentBook = {
+                id: 'book_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9),
+                title: '',
+                author: '',
+                description: '',
+                cover: '',
+                chapters: [],
+                lastModified: new Date()
+            };
+            currentChapterId = null;
+            hasUnsavedChanges = false;
+            
+            // 清空所有输入
+            bookTitleInput.value = '';
+            bookAuthorInput.value = '';
+            bookDescriptionInput.value = '';
+            bookCoverInput.value = '';
+            coverPreview.src = 'data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'200\' height=\'280\' viewBox=\'0 0 200 280\'%3E%3Crect fill=\'%23e0e0e0\' width=\'200\' height=\'280\'/%3E%3Ctext x=\'50%25\' y=\'50%25\' dominant-baseline=\'middle\' text-anchor=\'middle\' fill=\'%23999\' font-size=\'14\' font-family=\'Arial\'%3E图书封面%3C/text%3E%3C/svg%3E';
+            
+            chapterTitleInput.value = '';
+            chapterNumberInput.value = '';
+            chapterContentTextarea.value = '';
+            currentChapterTitle.textContent = '请选择章节';
+            currentChapterSubtitle.textContent = '点击左侧章节开始编辑内容';
+            
+            renderChapterList();
+            updateStatusBar('新建图书准备就绪', true);
+            lastSaved.textContent = '上次保存: 从未';
+        }
+        
+        function renderBookInfo() {
+            bookTitleInput.value = currentBook.title || '';
+            bookAuthorInput.value = currentBook.author || '';
+            bookDescriptionInput.value = currentBook.description || '';
+            bookCoverInput.value = currentBook.cover || '';
+            updateCoverPreview();
+        }
+        
         function renderChapterList() {
             chapterList.innerHTML = '';
             
             if (currentBook.chapters.length === 0) {
-                chapterList.appendChild(emptyChapterMessage);
                 emptyChapterMessage.style.display = 'block';
+                chapterList.appendChild(emptyChapterMessage);
                 return;
             }
             
             emptyChapterMessage.style.display = 'none';
-            
-            // 按章节编号排序
             const sortedChapters = [...currentBook.chapters].sort((a, b) => a.number - b.number);
             
             sortedChapters.forEach(chapter => {
                 const li = document.createElement('li');
                 li.className = 'chapter-item';
                 li.dataset.id = chapter.id;
-                
-                if (currentChapterId === chapter.id) {
-                    li.classList.add('active');
-                }
+                if (currentChapterId === chapter.id) li.classList.add('active');
                 
                 li.innerHTML = `
                     <div class="item-content">
@@ -930,11 +1003,8 @@
                     </div>
                 `;
                 
-                // 绑定点击事件
                 li.addEventListener('click', () => selectChapter(chapter.id));
-                
-                // 绑定编辑按钮事件
-                li.querySelector('.edit-btn').addEventListener('click', (e) => {
+                li.querySelector('.edit-btn').addEventListener('click', e => {
                     e.stopPropagation();
                     editChapter(chapter.id);
                 });
@@ -943,73 +1013,63 @@
             });
         }
         
-        // 选择章节
         function selectChapter(id) {
             currentChapterId = id;
             const chapter = currentBook.chapters.find(c => c.id === id);
-            
             if (chapter) {
-                chapterTitleInput.value = chapter.title;
-                chapterNumberInput.value = chapter.number;
+                chapterTitleInput.value = chapter.title || '';
+                chapterNumberInput.value = chapter.number || '';
                 chapterContentTextarea.value = chapter.content || '';
-                
                 currentChapterTitle.textContent = `第${chapter.number}章: ${chapter.title}`;
                 currentChapterSubtitle.textContent = `字数: ${(chapter.content || '').length} 字`;
-                
-                renderChapterList(); // 更新活动状态
+                renderChapterList();
             }
         }
         
-        // 编辑章节（在输入框中填入章节信息）
         function editChapter(id) {
             const chapter = currentBook.chapters.find(c => c.id === id);
-            
             if (chapter) {
-                chapterTitleInput.value = chapter.title;
-                chapterNumberInput.value = chapter.number;
+                chapterTitleInput.value = chapter.title || '';
+                chapterNumberInput.value = chapter.number || '';
                 currentChapterId = id;
-                
-                renderChapterList(); // 更新活动状态
+                renderChapterList();
             }
         }
         
-        // 添加章节
         function addChapter() {
             const title = chapterTitleInput.value.trim();
             const number = parseInt(chapterNumberInput.value);
             
             if (!title) {
                 alert('请输入章节标题');
+                chapterTitleInput.focus();
                 return;
             }
             
             if (!number || number <= 0) {
                 alert('请输入有效的章节编号');
+                chapterNumberInput.focus();
                 return;
             }
             
-            // 检查编号是否已存在
-            const existingChapter = currentBook.chapters.find(c => c.number === number);
-            if (existingChapter) {
+            if (currentBook.chapters.some(c => c.number === number)) {
                 alert(`章节编号 ${number} 已存在`);
+                chapterNumberInput.focus();
                 return;
             }
             
-            const newChapter = {
+            currentBook.chapters.push({
                 id: 'ch-' + Date.now(),
                 number: number,
                 title: title,
                 content: ''
-            };
-            
-            currentBook.chapters.push(newChapter);
+            });
             currentBook.lastModified = new Date();
-            
+            hasUnsavedChanges = true;
             renderChapterList();
             updateStatusBar('章节已添加', true);
         }
         
-        // 更新章节
         function updateChapter() {
             if (!currentChapterId) {
                 alert('请选择要更新的章节');
@@ -1021,36 +1081,35 @@
             
             if (!title) {
                 alert('请输入章节标题');
+                chapterTitleInput.focus();
                 return;
             }
             
             if (!number || number <= 0) {
                 alert('请输入有效的章节编号');
+                chapterNumberInput.focus();
                 return;
             }
             
-            // 检查编号是否与其他章节冲突（除了当前章节）
-            const existingChapter = currentBook.chapters.find(c => 
-                c.id !== currentChapterId && c.number === number
-            );
-            
-            if (existingChapter) {
+            const conflict = currentBook.chapters.find(c => c.id !== currentChapterId && c.number === number);
+            if (conflict) {
                 alert(`章节编号 ${number} 已存在`);
+                chapterNumberInput.focus();
                 return;
             }
             
-            const chapterIndex = currentBook.chapters.findIndex(c => c.id === currentChapterId);
-            if (chapterIndex !== -1) {
-                currentBook.chapters[chapterIndex].title = title;
-                currentBook.chapters[chapterIndex].number = number;
+            const idx = currentBook.chapters.findIndex(c => c.id === currentChapterId);
+            if (idx !== -1) {
+                currentBook.chapters[idx].title = title;
+                currentBook.chapters[idx].number = number;
                 currentBook.lastModified = new Date();
-                
+                hasUnsavedChanges = true;
                 renderChapterList();
+                selectChapter(currentChapterId);
                 updateStatusBar('章节已更新', true);
             }
         }
         
-        // 删除章节
         function removeChapter() {
             if (!currentChapterId) {
                 alert('请选择要删除的章节');
@@ -1064,6 +1123,7 @@
                 currentBook.chapters = currentBook.chapters.filter(c => c.id !== currentChapterId);
                 currentChapterId = null;
                 currentBook.lastModified = new Date();
+                hasUnsavedChanges = true;
                 
                 chapterTitleInput.value = '';
                 chapterNumberInput.value = '';
@@ -1076,7 +1136,6 @@
             }
         }
         
-        // 保存章节内容
         function saveChapterContent() {
             if (!currentChapterId) {
                 alert('请选择要保存的章节');
@@ -1089,6 +1148,7 @@
             if (chapterIndex !== -1) {
                 currentBook.chapters[chapterIndex].content = content;
                 currentBook.lastModified = new Date();
+                hasUnsavedChanges = true;
                 
                 currentChapterSubtitle.textContent = `字数: ${content.length} 字`;
                 
@@ -1096,7 +1156,6 @@
             }
         }
         
-        // 预览内容
         function previewContent() {
             if (!currentChapterId) {
                 alert('请选择要预览的章节');
@@ -1108,7 +1167,6 @@
             
             if (!chapter) return;
             
-            // 在新窗口中预览
             const previewWindow = window.open('', '_blank');
             previewWindow.document.write(`
                 <!DOCTYPE html>
@@ -1156,46 +1214,73 @@
             `);
         }
         
-        // 保存图书到模拟数据库
         function saveBook() {
-            if (!currentBook.title) {
+            if (!bookTitleInput.value.trim()) {
                 alert('请输入图书标题');
+                bookTitleInput.focus();
                 return;
             }
             
-            if (!currentBook.author) {
+            if (!bookAuthorInput.value.trim()) {
                 alert('请输入作者姓名');
+                bookAuthorInput.focus();
                 return;
             }
             
             updateStatusBar('保存中...', false);
             
-            // 模拟数据库保存
-            setTimeout(() => {
-                currentBook.title = bookTitleInput.value;
-                currentBook.author = bookAuthorInput.value;
-                currentBook.description = bookDescriptionInput.value;
-                currentBook.cover = bookCoverInput.value;
-                currentBook.lastModified = new Date();
-                
-                // 模拟保存到本地存储
-                const books = JSON.parse(localStorage.getItem('dream_books') || '[]');
-                const existingIndex = books.findIndex(b => b.id === currentBook.id);
-                
-                if (existingIndex !== -1) {
-                    books[existingIndex] = currentBook;
-                } else {
-                    books.push(currentBook);
+            // 先保存当前正在编辑的章节内容（如果存在）
+            if (currentChapterId) {
+                const chapterIndex = currentBook.chapters.findIndex(c => c.id === currentChapterId);
+                if (chapterIndex !== -1) {
+                    currentBook.chapters[chapterIndex].content = chapterContentTextarea.value;
                 }
-                
+            }
+            
+            // 更新当前图书的所有信息
+            currentBook.title = bookTitleInput.value.trim();
+            currentBook.author = bookAuthorInput.value.trim();
+            currentBook.description = bookDescriptionInput.value.trim();
+            currentBook.cover = bookCoverInput.value.trim();
+            
+            // 如果当前图书没有ID，创建一个唯一ID
+            if (!currentBook.id) {
+                currentBook.id = 'book_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+            }
+            
+            currentBook.lastModified = new Date();
+            
+            // 保存到本地存储
+            let books = JSON.parse(localStorage.getItem('dream_books') || '[]');
+            
+            // 查找现有图书索引
+            const existingIndex = books.findIndex(b => b.id === currentBook.id);
+            
+            if (existingIndex !== -1) {
+                // 更新现有图书
+                books[existingIndex] = { ...currentBook };
+            } else {
+                // 添加新图书
+                books.push({ ...currentBook });
+            }
+            
+            try {
                 localStorage.setItem('dream_books', JSON.stringify(books));
-                
-                updateStatusBar('图书已保存', true);
+                hasUnsavedChanges = false;
+                updateStatusBar('图书已成功保存！', true);
                 lastSaved.textContent = `上次保存: ${formatDate(currentBook.lastModified)}`;
-            }, 1000);
+                
+                setTimeout(() => {
+                    statusText.textContent = '就绪';
+                    statusText.className = 'save-indicator';
+                }, 3000);
+            } catch (error) {
+                updateStatusBar('保存失败：存储空间不足', false);
+                statusText.classList.add('error');
+                console.error('保存失败:', error);
+            }
         }
         
-        // 显示书库
         function showLibrary() {
             const books = JSON.parse(localStorage.getItem('dream_books') || '[]');
             const libraryBooks = document.getElementById('libraryBooks');
@@ -1208,28 +1293,37 @@
                 books.forEach(book => {
                     const bookCard = document.createElement('div');
                     bookCard.className = 'book-card';
+                    bookCard.dataset.bookId = book.id;
+                    
                     bookCard.innerHTML = `
                         <div class="book-card-header">
-                            <img src="${book.cover || 'data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'60\' height=\'80\' viewBox=\'0 0 60 80\'%3E%3Crect fill=\'%23e0e0e0\' width=\'60\' height=\'80\'/%3E%3Ctext x=\'50%25\' y=\'50%25\' dominant-baseline=\'middle\' text-anchor=\'middle\' fill=\'%23999\' font-size=\'10\' font-family=\'Arial\'%3E封面%3C/text%3E%3C/svg%3E'}" class="book-card-cover" alt="封面">
+                            <img src="${book.cover || 'data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'60\' height=\'80\' viewBox=\'0 0 60 80\'%3E%3Crect fill=\'%23e0e0e0\' width=\'60\' height=\'80\'/%3E%3Ctext x=\'50%25\' y=\'50%25\' dominant-baseline=\'middle\' text-anchor=\'middle\' fill=\'%23999\' font-size=\'10\' font-family=\'Arial\'%3E封面%3C/text%3E%3C/svg%3E'}" 
+                                 class="book-card-cover" 
+                                 alt="${book.title}封面">
                             <div class="book-card-info">
-                                <div class="book-card-title">${book.title}</div>
-                                <div class="book-card-author">作者: ${book.author}</div>
+                                <div class="book-card-title">${book.title || '未命名图书'}</div>
+                                <div class="book-card-author">作者: ${book.author || '未知作者'}</div>
                             </div>
                         </div>
                         <div class="book-card-stats">
-                            <span>章节: ${book.chapters.length}</span>
-                            <span>更新: ${formatDate(book.lastModified)}</span>
+                            <span>章节: ${book.chapters?.length || 0}</span>
+                            <span>更新: ${book.lastModified ? formatDate(book.lastModified) : '从未'}</span>
+                        </div>
+                        <div class="controls" style="margin-top: 10px;">
+                            <button class="btn btn-danger delete-book-btn">删除</button>
                         </div>
                     `;
                     
-                    bookCard.addEventListener('click', () => {
-                        currentBook = book;
-                        renderBookInfo();
-                        renderChapterList();
-                        updateStatusBar('图书已加载', true);
-                        lastSaved.textContent = `上次保存: ${formatDate(currentBook.lastModified)}`;
+                    bookCard.addEventListener('click', (e) => {
+                        if (e.target.closest('.delete-book-btn')) return;
                         
-                        libraryModal.style.display = 'none';
+                        loadBookIntoEditor(book.id);
+                    });
+                    
+                    const deleteBtn = bookCard.querySelector('.delete-book-btn');
+                    deleteBtn.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        deleteBook(book.id, bookCard);
                     });
                     
                     libraryBooks.appendChild(bookCard);
@@ -1239,22 +1333,76 @@
             libraryModal.style.display = 'block';
         }
         
-        // 更新状态栏
+        function loadBookIntoEditor(bookId) {
+            const books = JSON.parse(localStorage.getItem('dream_books') || '[]');
+            const book = books.find(b => b.id === bookId);
+            
+            if (book) {
+                currentBook = { ...book };
+                currentChapterId = null;
+                hasUnsavedChanges = false;
+                renderBookInfo();
+                renderChapterList();
+                updateStatusBar('图书已加载', true);
+                lastSaved.textContent = `上次保存: ${formatDate(currentBook.lastModified)}`;
+                
+                chapterTitleInput.value = '';
+                chapterNumberInput.value = '';
+                chapterContentTextarea.value = '';
+                currentChapterTitle.textContent = '请选择章节';
+                currentChapterSubtitle.textContent = '点击左侧章节开始编辑内容';
+                
+                libraryModal.style.display = 'none';
+            }
+        }
+        
+        function deleteBook(bookId, bookCardElement) {
+            if (!confirm('确定要删除这本图书吗？此操作不可恢复。')) {
+                return;
+            }
+            
+            const books = JSON.parse(localStorage.getItem('dream_books') || '[]');
+            const updatedBooks = books.filter(book => book.id !== bookId);
+            
+            try {
+                localStorage.setItem('dream_books', JSON.stringify(updatedBooks));
+                
+                if (currentBook.id === bookId) {
+                    createNewBook();
+                }
+                
+                if (bookCardElement && bookCardElement.parentNode) {
+                    bookCardElement.parentNode.removeChild(bookCardElement);
+                }
+                
+                const libraryBooks = document.getElementById('libraryBooks');
+                if (libraryBooks.children.length === 0) {
+                    libraryBooks.innerHTML = '<div class="empty-message">您还没有创建任何图书</div>';
+                }
+                
+                updateStatusBar('图书已删除', true);
+            } catch (error) {
+                updateStatusBar('删除失败', false);
+                statusText.classList.add('error');
+                console.error('删除失败:', error);
+            }
+        }
+        
         function updateStatusBar(message, success = true) {
             statusText.textContent = message;
             statusText.className = 'save-indicator';
             
             if (!success) {
                 statusText.classList.add('saving');
-            } else if (!message.includes('错误')) {
-                setTimeout(() => {
-                    statusText.textContent = '就绪';
-                }, 2000);
+            } else if (message.includes('保存中')) {
+                statusText.classList.add('saving');
+            } else if (message.includes('未保存')) {
+                statusText.className = 'unsaved-warning';
             }
         }
         
-        // 格式化日期
         function formatDate(date) {
+            if (!date) return '从未';
             return new Date(date).toLocaleString('zh-CN');
         }
     </script>
